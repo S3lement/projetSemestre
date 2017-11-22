@@ -10,13 +10,15 @@ using namespace std;
 
 class WorkPool{
     public:
-        queue<Node> workpool;
+        queue<int> workPool;
         vector<Worker> workers;
 
         WorkPool();
         void createWorkPool(Dag dag, int id);
-        void playWorkPool(Dag dag, int nbWorker);
+        void playWorkPool(Dag dag, int* begin , int nbBegin,int nbWorker);
+        void addNodeInTheWorker(Dag dag, int idWorker, int idNode);
         int threadAvailable();
+        bool workersWork();
         int smallerWorkerTime();
         bool nodeAlreadyInProgress(int id);
         void Wait(int idWorker);

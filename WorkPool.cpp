@@ -10,7 +10,7 @@ WorkPool::WorkPool() {
 void WorkPool::createWorkPool(Dag dag, int id) {
     int pos = dag.searchNodeIntoDag(id);
     if (pos != -1) {
-        workpool.push(dag.nodes[pos]);
+        workPool.push(id);
         //cout << dag.nodes[pos].id << endl;
         if (dag.nodes[pos].children.begin() != dag.nodes[pos].children.end()) {
             for (int i = 0; i < dag.nodes[pos].children.size(); i++) {
@@ -20,74 +20,71 @@ void WorkPool::createWorkPool(Dag dag, int id) {
     }
 }
 
-void WorkPool::playWorkPool(Dag dag, int nbWorker){
+void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker){
     //Create thread(simulation)
     for(int i = 0; i < nbWorker; i++){
         Worker newWorker;
         workers.push_back(newWorker);
     }
 
-    //Action thread
-    int idActiveThread;
-    int pos;
-    while(!workpool.empty()){
-        Node node = workpool.front();
-        pos = dag.searchNodeIntoDag(node.id);
-        if(!dag.nodes[pos].stat){
-            idActiveThread = threadAvailable();
-            if(idActiveThread != -1) {
-                if(!nodeAlreadyInProgress(node.id)) {
-                    if (dag.allFathersAreExecuted(node.id)) {
-                        workers[idActiveThread].idNode = node.id;
-                        workers[idActiveThread].time = node.cost * pow(10.0, 5.0);
-                        workers[idActiveThread].work = true;
-                    } else {
-                        workpool.push(node);
-                        cout << "wait all father ar executed" << endl;
-                        int idWorker = smallerWorkerTime();
-                        Wait(idWorker);
-                        for(int i = 0; i < workers.size(); i++){
-                            if(i == idWorker){
-                                cout << "Finish with thread " << i << " id node " << node.id << " time " << node.cost << endl;
-                                pos = dag.searchNodeIntoDag(workers[i].idNode);
-                                dag.nodes[pos].stat = true;
-                                workers[i].work = false;
-                            }else {
-                                if(workers[i].work) {
-                                    if (workers[i].time > workers[idWorker].time) {
-                                        workers[i].time -= workers[idWorker].time;
-                                    } else {
-                                        workers[i].time = 0;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                workpool.pop();
-            }else{
-                cout << "All threads work" << endl;
-                int idWorker = smallerWorkerTime();
-                Wait(idWorker);
-                for(int i = 0; i < workers.size(); i++){
-                    if(i == idWorker){
-                        cout << "Finish with thread " << i << " id node " << node.id << " time " << node.cost << endl;
-                        pos = dag.searchNodeIntoDag(workers[i].idNode);
-                        dag.nodes[pos].stat = true;
-                        workers[i].work = false;
-                    }else {
-                        if(workers[i].time > workers[idWorker].time) {
-                            workers[i].time -= workers[idWorker].time;
-                        }else{
-                            workers[i].time = 0;
-                        }
-                    }
-                }
-            }
-        }else{
-            workpool.pop();
+    //Push in the queue if the nbBegin > nbWorker
+    int diff = nbBegin-nbWorker;
+    if(nbBegin > nbWorker){
+        for(int i = nbBegin-diff; i < nbBegin; i++){
+            workPool.push(begin[i]);
+            cout << "add node id " << begin[i] << " in the queue" << endl;
         }
     }
+
+    //Put in the worker the node for be handled
+    for(int i = 0; i < nbBegin; i++){
+        addNodeInTheWorker(dag,i,begin[i]);
+        cout << "worker " << i << " work with node id " << begin[i] << endl;
+
+    }
+
+    while(workersWork()) {
+        cout << "-----------------------------------" << endl;
+        int idSmallerTime = smallerWorkerTime();
+        double timeToSub = workers[idSmallerTime].time;
+        workers[idSmallerTime].work = false;
+        cout << "worker " << idSmallerTime << " finish node " << workers[idSmallerTime].idNode << endl;
+
+        vector<int> nodeReady = dag.nodeTreaded(workers[idSmallerTime].idNode);
+        for (int i = 0; i < nodeReady.size(); i++) {
+            workPool.push(nodeReady[i]);
+            cout << "add node id " << nodeReady[i] << " in the queue" << endl;
+        }
+
+        for (int i = 0; i < nbWorker; i++) {
+            if (workers[i].work) {
+                workers[i].time -= timeToSub;
+            } else {
+                if (!workPool.empty()) {
+                    int idNode = workPool.front();
+                    addNodeInTheWorker(dag, i, idNode);
+                    workPool.pop();
+                    cout << "worker " << i << " work with node id " << idNode << endl;
+                }
+            }
+        }
+    }
+}
+
+void WorkPool::addNodeInTheWorker(Dag dag, int idWorker, int idNode){
+    int posInTheDag = dag.searchNodeIntoDag(idNode);
+    workers[idWorker].idNode = dag.nodes[posInTheDag].id;
+    workers[idWorker].time = dag.nodes[posInTheDag].cost;
+    workers[idWorker].work = true;
+}
+
+bool WorkPool::workersWork(){
+    for(int i = 0; i < workers.size(); i++){
+        if(workers[i].work){
+            return true;
+        }
+    }
+    return false;
 }
 
 int WorkPool::threadAvailable(){
@@ -98,13 +95,20 @@ int WorkPool::threadAvailable(){
 }
 
 int WorkPool::smallerWorkerTime(){
-    int smaller = 0;
-    int time = workers[0].time;
-    for(int i = 1; i < workers.size(); i++){
+    int smaller;
+    double time;
+    bool init = false;
+    for(int i = 0; i < workers.size(); i++){
         if(workers[i].work) {
-            if (workers[i].time < time) {
+            if(!init){
                 smaller = i;
                 time = workers[i].time;
+                init = true;
+            }else {
+                if (workers[i].time < time) {
+                    smaller = i;
+                    time = workers[i].time;
+                }
             }
         }
     }

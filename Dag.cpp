@@ -91,9 +91,31 @@ bool Dag::allFathersAreExecuted(int id){
     int pos = searchNodeIntoDag(id);
     for (int i = 0; i < nodes[pos].fathers.size(); i++) {
         int posFather = searchNodeIntoDag(nodes[pos].fathers[i]);
-        if(nodes[posFather].stat == false) return false;
+        if(!nodes[posFather].stat) return false;
     }
     return true;
+}
+
+vector<int> Dag::nodeTreaded(int id){
+    vector<int> nodesReady;
+    int pos = searchNodeIntoDag(id);
+    int posChild;
+    for(int i = 0; i < nodes[pos].children.size(); i++){
+        posChild = searchNodeIntoDag(nodes[pos].children[i]);
+        nodes[posChild].cptReady++;
+        if(nodeReady(nodes[posChild].id)){
+            nodesReady.push_back(nodes[posChild].id);
+        }
+    }
+    return nodesReady;
+}
+
+bool Dag::nodeReady(int id){
+    int pos = searchNodeIntoDag(id);
+    if(nodes[pos].cptReady == nodes[pos].fathers.size()) {
+        return true;
+    }
+    return false;
 }
 
 void Dag::displayDag() {

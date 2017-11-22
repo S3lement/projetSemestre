@@ -15,6 +15,8 @@ class Dag{
         void addCost(string filename);
         int searchNodeIntoDag(int id);
         bool allFathersAreExecuted(int id);
+        vector<int> nodeTreaded(int id);
+        bool nodeReady(int id);
         void displayDag();
 };
 
