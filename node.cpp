@@ -3,6 +3,10 @@
 
 using namespace std;
 
+/**
+ * Create a node
+ * @param idNode
+ */
 Node::Node(int idNode){
     id = idNode;
     cost = 0.0;
@@ -11,6 +15,9 @@ Node::Node(int idNode){
 
 }
 
+/**
+ * Display node
+ */
 void Node::displayNode() {
     cout << "id node: " << id << " time: " << cost << endl;
     for (int i = 0; i < children.size(); ++i) {

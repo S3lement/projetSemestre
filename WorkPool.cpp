@@ -1,23 +1,8 @@
 #include <iostream>
 #include "WorkPool.h"
-#include <math.h>
-#include <unistd.h>
 
 
 WorkPool::WorkPool() {
-}
-
-void WorkPool::createWorkPool(Dag dag, int id) {
-    int pos = dag.searchNodeIntoDag(id);
-    if (pos != -1) {
-        workPool.push(id);
-        //cout << dag.nodes[pos].id << endl;
-        if (dag.nodes[pos].children.begin() != dag.nodes[pos].children.end()) {
-            for (int i = 0; i < dag.nodes[pos].children.size(); i++) {
-                createWorkPool(dag, dag.nodes[pos].children[i]);
-            }
-        }
-    }
 }
 
 void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker){
@@ -38,19 +23,20 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker){
 
     //Put in the worker the node for be handled
     for(int i = 0; i < nbBegin; i++){
-        addNodeInTheWorker(dag,i,begin[i]);
+        addNodeInTheWorker(dag,i,begin[i], 0.0);
         cout << "worker " << i << " work with node id " << begin[i] << endl;
 
     }
-
+    double timeExecute = 0;
     while(workersWork()) {
         cout << "-----------------------------------" << endl;
         int idSmallerTime = smallerWorkerTime();
         double timeToSub = workers[idSmallerTime].time;
         workers[idSmallerTime].work = false;
+        timeExecute += workers[idSmallerTime].time;
         cout << "worker " << idSmallerTime << " finish node " << workers[idSmallerTime].idNode << endl;
 
-        vector<int> nodeReady = dag.nodeTreaded(workers[idSmallerTime].idNode);
+        vector<int> nodeReady = dag.nodeHandle(workers[idSmallerTime].idNode);
         for (int i = 0; i < nodeReady.size(); i++) {
             workPool.push(nodeReady[i]);
             cout << "add node id " << nodeReady[i] << " in the queue" << endl;
@@ -62,19 +48,25 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker){
             } else {
                 if (!workPool.empty()) {
                     int idNode = workPool.front();
-                    addNodeInTheWorker(dag, i, idNode);
+                    addNodeInTheWorker(dag, i, idNode, timeExecute);
                     workPool.pop();
                     cout << "worker " << i << " work with node id " << idNode << endl;
                 }
             }
         }
     }
+
+    cout << "Time to execute all the program " << timeExecute << endl;
+
+    display((int)timeExecute, 1);
 }
 
-void WorkPool::addNodeInTheWorker(Dag dag, int idWorker, int idNode){
+void WorkPool::addNodeInTheWorker(Dag dag, int idWorker, int idNode, double currentTime){
     int posInTheDag = dag.searchNodeIntoDag(idNode);
+    array<double, 3> infoNode = {(double)dag.nodes[posInTheDag].id, dag.nodes[posInTheDag].cost, currentTime};
     workers[idWorker].idNode = dag.nodes[posInTheDag].id;
     workers[idWorker].time = dag.nodes[posInTheDag].cost;
+    workers[idWorker].handle.push_back(infoNode);
     workers[idWorker].work = true;
 }
 
@@ -85,13 +77,6 @@ bool WorkPool::workersWork(){
         }
     }
     return false;
-}
-
-int WorkPool::threadAvailable(){
-    for(int i = 0; i < workers.size(); i++){
-        if(!workers[i].work) return i;
-    }
-    return -1;
 }
 
 int WorkPool::smallerWorkerTime(){
@@ -115,17 +100,36 @@ int WorkPool::smallerWorkerTime(){
     return smaller;
 }
 
-bool WorkPool::nodeAlreadyInProgress(int id){
-    for (int i = 0; i < workers.size(); i++) {
-        if(workers[i].work){
-            if(workers[i].idNode == id) return true;
-        }
-    }
-    return false;
-}
+void WorkPool::display(int timeExecute, int base) {
+    int cptTimeBegin = 0;
+    bool work = false;
+    cout << "Workers in the time" << endl;
+    for(int i = 0; i < workers.size(); i++){
+        cout << "------worker " << i << "------" << endl;
+        for(int j = 0; j < workers[i].handle.size(); j++){
+            cout << "node id " << workers[i].handle[j][0] << " time begin " << workers[i].handle[j][2]
+                << " time end " << workers[i].handle[j][2]+workers[i].handle[j][1] << endl;
 
-void WorkPool::Wait(int idWorker){
-    //cout << idWorker << endl;
-    //cout << workers[idWorker].time << endl;
-    usleep(workers[idWorker].time*pow(10.0,5.0));
+        }
+        /*for(int k = 0; k < timeExecute*base; k++){
+            if(cptTimeBegin < workers[i].handle.size() && workers[i].handle[cptTimeBegin][2] <= k/base){
+                work = true;
+            }
+
+            if(work){
+                cout << "*";
+            }else{
+                cout << "-";
+            }
+
+            if(work && workers[i].handle[cptTimeBegin][2]+workers[i].handle[cptTimeBegin][1] == k/base){
+                work = false;
+                cptTimeBegin++;
+            }
+
+        }
+        work = false;
+        cptTimeBegin = 0;
+        cout << endl;*/
+    }
 }

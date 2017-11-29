@@ -9,6 +9,11 @@ using namespace std;
 Dag::Dag(){
 }
 
+/**
+ * Search a node in the dag
+ * @param id of node
+ * @return int pos in the dag
+ */
 int Dag::searchNodeIntoDag(int id) {
     for (int i = 0; i < nodes.size(); ++i) {
         if(nodes[i].id == id){
@@ -18,6 +23,10 @@ int Dag::searchNodeIntoDag(int id) {
     return -1;
 }
 
+/**
+ * Create a dag with the format file .dot
+ * @param filename name of file
+ */
 void Dag::createDag(string filename){
     ifstream file(filename);
     string line;
@@ -60,6 +69,10 @@ void Dag::createDag(string filename){
     }
 }
 
+/**
+ * Add the cost of the node into dag
+ * @param filename name of file with the format .dot
+ */
 void Dag::addCost(string filename){
     ifstream file(filename);
     string line;
@@ -87,16 +100,12 @@ void Dag::addCost(string filename){
     }
 }
 
-bool Dag::allFathersAreExecuted(int id){
-    int pos = searchNodeIntoDag(id);
-    for (int i = 0; i < nodes[pos].fathers.size(); i++) {
-        int posFather = searchNodeIntoDag(nodes[pos].fathers[i]);
-        if(!nodes[posFather].stat) return false;
-    }
-    return true;
-}
-
-vector<int> Dag::nodeTreaded(int id){
+/**
+ * When a node finish return the new node who is ready
+ * @param id node
+ * @return vector<int> vector of node ready to execute
+ */
+vector<int> Dag::nodeHandle(int id){
     vector<int> nodesReady;
     int pos = searchNodeIntoDag(id);
     int posChild;
@@ -110,6 +119,11 @@ vector<int> Dag::nodeTreaded(int id){
     return nodesReady;
 }
 
+/**
+ * Test if node is ready to execut
+ * @param id node
+ * @return bool if ready or not
+ */
 bool Dag::nodeReady(int id){
     int pos = searchNodeIntoDag(id);
     if(nodes[pos].cptReady == nodes[pos].fathers.size()) {
@@ -118,6 +132,9 @@ bool Dag::nodeReady(int id){
     return false;
 }
 
+/**
+ * Display dag
+ */
 void Dag::displayDag() {
     for (int i = 0; i < nodes.size(); ++i) {
         nodes[i].displayNode();

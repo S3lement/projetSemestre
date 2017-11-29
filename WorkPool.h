@@ -14,14 +14,11 @@ class WorkPool{
         vector<Worker> workers;
 
         WorkPool();
-        void createWorkPool(Dag dag, int id);
         void playWorkPool(Dag dag, int* begin , int nbBegin,int nbWorker);
-        void addNodeInTheWorker(Dag dag, int idWorker, int idNode);
-        int threadAvailable();
+        void addNodeInTheWorker(Dag dag, int idWorker, int idNode, double currentTime);
         bool workersWork();
         int smallerWorkerTime();
-        bool nodeAlreadyInProgress(int id);
-        void Wait(int idWorker);
+        void display(int timeExecute, int base);
 };
 
 #endif //PROJETSEMESTRE_WORKPOOL_H
