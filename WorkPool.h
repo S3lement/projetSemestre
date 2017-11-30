@@ -12,9 +12,10 @@ class WorkPool{
     public:
         queue<int> workPool;
         vector<Worker> workers;
+        vector<int> workPoolVector;
 
         WorkPool();
-        void playWorkPool(Dag dag, int* begin , int nbBegin,int nbWorker);
+        void playWorkPool(Dag dag, int* begin , int nbBegin,int nbWorker, int mode);
         void addNodeInTheWorker(Dag dag, int idWorker, int idNode, double currentTime);
         bool workersWork();
         int smallerWorkerTime();

@@ -11,7 +11,7 @@ Node::Node(int idNode){
     id = idNode;
     cost = 0.0;
     cptReady = 0;
-    stat = false;
+    state = false;
 
 }
 

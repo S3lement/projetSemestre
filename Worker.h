@@ -11,10 +11,10 @@ class Worker{
         int idNode;
         double time;
         bool work;
-        // handle[0] = idNode
-        // handle[1] = timeToExecute
-        // handle[2] = currentTime
-        vector<array<double, 3>> handle;
+        // handleHistory[0] = idNode
+        // handleHistory[1] = timeToExecute
+        // handleHistory[2] = currentTime
+        vector<array<double, 3>> handleHistory;
 
         Worker();
 

@@ -16,7 +16,10 @@ int main() {
     int nbBegin = 1;
     int tabBegin[nbBegin] = {1};
     int nbWorkers = 4;
-    workPool.playWorkPool(dag, tabBegin, nbBegin, nbWorkers);
+    int mode = 1;
+    workPool.playWorkPool(dag, tabBegin, nbBegin, nbWorkers, mode);
+    mode = 2;
+    workPool.playWorkPool(dag, tabBegin, nbBegin, nbWorkers, mode);
 
     return 0;
 }
