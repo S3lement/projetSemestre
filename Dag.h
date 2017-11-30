@@ -16,6 +16,7 @@ class Dag{
         int searchNodeIntoDag(int id);
         vector<int> nodeHandle(int id);
         bool nodeReady(int id);
+        void resetDag();
         void displayDag();
 };
 

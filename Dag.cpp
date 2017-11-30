@@ -132,6 +132,12 @@ bool Dag::nodeReady(int id){
     return false;
 }
 
+void Dag::resetDag() {
+    for(int i = 0; i < nodes.size(); i++){
+        nodes[i].cptReady = 0;
+    }
+}
+
 /**
  * Display dag
  */

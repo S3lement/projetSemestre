@@ -17,8 +17,11 @@ int main() {
     int tabBegin[nbBegin] = {1};
     int nbWorkers = 4;
     int mode = 1;
+    cout << "mode queue" << endl;
     workPool.playWorkPool(dag, tabBegin, nbBegin, nbWorkers, mode);
+    dag.resetDag();
     mode = 2;
+    cout << "mode random" << endl;
     workPool.playWorkPool(dag, tabBegin, nbBegin, nbWorkers, mode);
 
     return 0;

@@ -1,7 +1,6 @@
 #include <iostream>
 #include "WorkPool.h"
-#include <stdlib.h>     /* srand, rand */
-#include <time.h>       /* time */
+
 
 
 WorkPool::WorkPool() {
@@ -18,6 +17,9 @@ WorkPool::WorkPool() {
  */
 void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int mode){
     //Create thread(simulation)
+    if(workers.size() > 0){
+        workers.clear();
+    }
     for(int i = 0; i < nbWorker; i++){
         Worker newWorker;
         workers.push_back(newWorker);
@@ -28,10 +30,10 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int 
     if(nbBegin > nbWorker){
         for(int i = nbBegin-diff; i < nbBegin; i++){
             switch(mode){
-                case 1 :
+                case 1 ://queue
                     workPool.push(begin[i]);
                     break;
-                case 2 :
+                case 2 ://random
                     workPoolVector.push_back(begin[i]);
                     break;
                 default:
@@ -62,10 +64,10 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int 
         vector<int> nodeReady = dag.nodeHandle(workers[idSmallerTime].idNode);
         for (int i = 0; i < nodeReady.size(); i++) {
             switch(mode){
-                case 1 :
+                case 1 ://queue
                     workPool.push(nodeReady[i]);
                     break;
-                case 2 :
+                case 2 ://random
                     workPoolVector.push_back(nodeReady[i]);
                     break;
                 default:
@@ -79,7 +81,7 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int 
                 workers[i].time -= timeToSub;
             } else {
                 switch(mode){
-                    case 1 :
+                    case 1 ://queue
                         if (!workPool.empty()) {
                             int idNode = workPool.front();
                             addNodeInTheWorker(dag, i, idNode, timeExecute);
@@ -87,7 +89,7 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int 
                             //cout << "worker " << i << " work with node id " << idNode << endl;
                         }
                         break;
-                    case 2 :
+                    case 2 ://random
                         if(workPoolVector.size()!=0){
                             int ran = (int)(rand() % workPoolVector.size());
                             int idNode = workPoolVector[ran];
