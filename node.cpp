@@ -5,7 +5,7 @@ using namespace std;
 
 /**
  * Create a node
- * @param idNode
+ * @param idNode of node
  */
 Node::Node(int idNode){
     id = idNode;

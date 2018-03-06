@@ -120,7 +120,7 @@ vector<int> Dag::nodeHandle(int id){
 }
 
 /**
- * Test if node is ready to execut
+ * Test if node is ready to execute
  * @param id node
  * @return bool if ready or not
  */
@@ -132,6 +132,9 @@ bool Dag::nodeReady(int id){
     return false;
 }
 
+/*
+ * Reset a dag
+ */
 void Dag::resetDag() {
     for(int i = 0; i < nodes.size(); i++){
         nodes[i].cptReady = 0;

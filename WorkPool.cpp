@@ -7,13 +7,14 @@ WorkPool::WorkPool() {
 }
 
 /**
- *
+ * Execute the dag with the good mode
  * @param dag
  * @param begin node or nodes of begin
  * @param nbBegin number of node
  * @param nbWorker number of worker
  * @param mode 1 = queue
  *             2 = random
+ *             3 = node with the most father
  */
 void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int mode){
     //Create thread(simulation)
@@ -42,28 +43,27 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int 
                 default:
                     cout << "error mode " << mode << endl;
             }
-            //cout << "add node id " << begin[i] << " in the queue" << endl;
         }
     }
 
     //Put in the worker the node for be handled
     for(int i = 0; i < nbBegin; i++){
         addNodeInTheWorker(dag,i,begin[i], 0.0);
-        //cout << "worker " << i << " work with node id " << begin[i] << endl;
-
     }
 
+    //Initialize random
     srand(time(NULL));
 
     double timeExecute = 0;
+    //Execute the dag as long as there are workers
     while(workersWork()) {
-        //cout << "-----------------------------------" << endl;
+        //Take the work with the smallest time
         int idSmallerTime = smallerWorkerTime();
         double timeToSub = workers[idSmallerTime].time;
         workers[idSmallerTime].work = false;
         timeExecute += workers[idSmallerTime].time;
-        //cout << "worker " << idSmallerTime << " finish node " << workers[idSmallerTime].idNode << endl;
 
+        //Take back all the node ready
         vector<int> nodeReady = dag.nodeHandle(workers[idSmallerTime].idNode);
         for (int i = 0; i < nodeReady.size(); i++) {
             switch(mode){
@@ -79,9 +79,10 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int 
                 default:
                     cout << "error mode " << mode << endl;
             }
-            //cout << "add node id " << nodeReady[i] << " in the queue" << endl;
         }
 
+        //For the workers decrease their time
+        //For the worker who his finish, Find the next node to handle
         for (int i = 0; i < nbWorker; i++) {
             if (workers[i].work) {
                 workers[i].time -= timeToSub;
@@ -92,7 +93,6 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int 
                             int idNode = workPool.front();
                             addNodeInTheWorker(dag, i, idNode, timeExecute);
                             workPool.pop();
-                            //cout << "worker " << i << " work with node id " << idNode << endl;
                         }
                         break;
                     case MODE_RANDOM ://random
@@ -103,7 +103,7 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int 
                             addNodeInTheWorker(dag, i, idNode, timeExecute);
                         }
                         break;
-                    case MODE_NODE_WITH_MOST_FATHER :
+                    case MODE_NODE_WITH_MOST_FATHER ://node with the most father
                         if(workPoolVector.size()!=0){
                             int numFather = 0;
                             int nbFather = (int)dag.nodes[dag.searchNodeIntoDag(workPoolVector[0])].fathers.size();
@@ -127,7 +127,7 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int 
 
     cout << "Time to execute all the program " << timeExecute << endl;
 
-    display((int)timeExecute, 1, DISPLAY_TEXT);
+    //display((int)timeExecute, 1, DISPLAY_TEXT);
 }
 
 /**
@@ -194,14 +194,14 @@ void WorkPool::display(int timeExecute, int base, int mode) {
     bool work = false;
     cout << "Workers in the time" << endl;
     for(int i = 0; i < workers.size(); i++){
-        if(mode == DISPLAY_TEXT){
+        if(mode == DISPLAY_TEXT){//Mode text
             cout << "------worker " << i << "------" << endl;
             for(int j = 0; j < workers[i].handleHistory.size(); j++){
                 cout << "node id " << workers[i].handleHistory[j][0] << " time begin " << workers[i].handleHistory[j][2]
                     << " time end " << workers[i].handleHistory[j][2]+workers[i].handleHistory[j][1] << endl;
 
             }
-        }else if(mode == DISPLAY_GRAPH){
+        }else if(mode == DISPLAY_GRAPH){//Mode graphic with the stars
             for(int k = 0; k < timeExecute*base; k++){
                 if(cptTimeBegin < workers[i].handleHistory.size() && workers[i].handleHistory[cptTimeBegin][2] <= k/base){
                     work = true;
@@ -217,7 +217,6 @@ void WorkPool::display(int timeExecute, int base, int mode) {
                     work = false;
                     cptTimeBegin++;
                 }
-
             }
             work = false;
             cptTimeBegin = 0;
