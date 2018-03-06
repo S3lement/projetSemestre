@@ -16,12 +16,12 @@ int main() {
     int nbBegin = 1;
     int tabBegin[nbBegin] = {1};
     int nbWorkers = 4;
-    int mode = 1;
-    cout << "mode queue" << endl;
+    int mode = MODE_NODE_WITH_MOST_FATHER;
+    cout << "MODE_NODE_WITH_MOST_FATHER" << endl;
     workPool.playWorkPool(dag, tabBegin, nbBegin, nbWorkers, mode);
     dag.resetDag();
-    mode = 2;
-    cout << "mode random" << endl;
+    mode = MODE_QUEUE;
+    cout << "MODE_QUEUE" << endl;
     workPool.playWorkPool(dag, tabBegin, nbBegin, nbWorkers, mode);
 
     return 0;
