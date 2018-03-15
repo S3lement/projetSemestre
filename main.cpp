@@ -20,17 +20,19 @@ int main() {
     WorkPool workPool;
     int nbBegin = 1;
     int tabBegin[nbBegin] = {1};
-    int nbWorkers = 20;
+    int nbWorkers = 5;
     int mode = MODE_RANDOM;
     /*for(int i=0; i < 10; i++) {
-        cout << "MODE_NODE_WITH_MOST_FATHER" << endl;
+    //    cout << "MODE_NODE_WITH_MOST_FATHER" << endl;
         workPool.playWorkPool(dag, tabBegin, nbBegin, nbWorkers, mode);
+        usleep(1000000);
         dag.resetDag();
     }*/
 
     SA sa;
     for (int i = 0; i < 10; ++i) {
-        sa.solveSA(dag, 40, 1);
+        sa.solveSA(dag, 50, 1, 0.7);
+        sa.displaySA();
         usleep(1000000);
     }
     return 0;

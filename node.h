@@ -10,7 +10,6 @@ class Node{
         double cost;
         vector<int> children;
         vector<int> fathers;
-        bool state;
         int cptReady;
 
         Node(int idNode);

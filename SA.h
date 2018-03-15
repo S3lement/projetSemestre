@@ -7,11 +7,12 @@
 
 class SA{
     public:
+        vector<int> orderNode;
 
         SA();
-        void solveSA(Dag dag, int T_init, int S_init);
+        void solveSA(Dag dag, int T_init, int S_init, double limit);
         double ProbaSol(Node node);
-        Node newSol(vector<int> nodeReady);
+        void displaySA();
 };
 
 

@@ -5,8 +5,16 @@
 SA::SA() {
 }
 
-void SA::solveSA(Dag dag, int T_init, int S_init){
-    vector<int> orderNode;
+/**
+ * Solve a dag with the simulated annealing
+ * @param dag
+ * @param T_init Temperature initial
+ * @param S_init Solution initial
+ * @param limit of metropolis
+ */
+void SA::solveSA(Dag dag, int T_init, int S_init, double limit){
+    orderNode.clear();
+
     double timeToExecute = dag.nodes[dag.searchNodeIntoDag(S_init)].cost;
 
     double probE = ProbaSol(dag.nodes[dag.searchNodeIntoDag(S_init)]);
@@ -15,6 +23,7 @@ void SA::solveSA(Dag dag, int T_init, int S_init){
 
     vector<int> nodeReady = dag.nodeHandle(S_init);
     orderNode.push_back(S_init);
+
     srand (time(NULL));
     int nbRand;
     int idNode;
@@ -22,30 +31,25 @@ void SA::solveSA(Dag dag, int T_init, int S_init){
     double probE2;
     double metropolis;
     int cpt = 0;
+
     while(nodeReady.size() != 0){
+        //new sol
         nbRand = (int)(rand() % nodeReady.size());
         idNode = nodeReady[nbRand];
-        //cout << idNode << endl;
+        //Proba with the new sol
         probE2 = ProbaSol(dag.nodes[dag.searchNodeIntoDag(idNode)]);
-        if(isinf(probE2)) break;
-        //cout << "probE " << probE << endl;
-        //cout << "porbE2 " << probE2 << endl;
+        //calculate the deltaE
         deltaE =  probE2 - probE;
-        //cout << "deltaE " << deltaE << endl;
         probE = probE2;
-        if(deltaE <= 0){
-            //cout << "fin de " << idNode << endl;
+        if(deltaE <= 0){//accept the node
             timeToExecute += dag.nodes[dag.searchNodeIntoDag(idNode)].cost;
             vector<int> newNodeReady = dag.nodeHandle(idNode);
             nodeReady.insert(nodeReady.end(), newNodeReady.begin(), newNodeReady.end());
             nodeReady.erase(nodeReady.begin()+nbRand);
             orderNode.push_back(idNode);
         }else{
-            //cout << "deltaE " << deltaE << endl;
-            metropolis = exp(-deltaE/T);
-            //cout << "metropolis " << metropolis << endl;
-            if(metropolis > 0.8){
-                //cout << "fin de " << idNode << endl;
+            metropolis = exp(-deltaE/T);//calculate metropolis
+            if(metropolis > limit){//if metropolis is better than limit we accept the node
                 timeToExecute += dag.nodes[dag.searchNodeIntoDag(idNode)].cost;
                 vector<int> newNodeReady = dag.nodeHandle(idNode);
                 nodeReady.insert(nodeReady.end(), newNodeReady.begin(), newNodeReady.end());
@@ -57,20 +61,25 @@ void SA::solveSA(Dag dag, int T_init, int S_init){
         cpt++;
     }
     orderNode.push_back(idNode);
+    timeToExecute += dag.nodes[dag.searchNodeIntoDag(idNode)].cost;
     cout << "Time for execute the dag : " << timeToExecute << " nb ite " << cpt << endl;
-    for (int i = 0; i < orderNode.size(); ++i) {
-        cout << orderNode[i] << " ";
-    }
-    cout << endl;
 }
 
+/**
+ * Calculate de new proba for a new solution
+ * @param node
+ * @return double proba
+ */
 double SA::ProbaSol(Node node){
     return (node.cost*10000000)/node.children.size();
 }
 
-Node SA::newSol(vector<int> nodeReady){
-    /* initialize random seed: */
-    srand (time(NULL));
-    int nbRand = rand() % (int)nodeReady.size() + 1;
-
+/**
+ * Display a node
+ */
+void SA::displaySA(){
+    for (int i = 0; i < orderNode.size(); ++i) {
+        cout << orderNode[i] << " ";
+    }
+    cout << endl;
 }
