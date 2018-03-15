@@ -43,14 +43,12 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int 
                 default:
                     cout << "error mode " << mode << endl;
             }
-            //cout << "add node id " << begin[i] << " in the queue" << endl;
         }
     }
 
     //Put in the worker the node for be handled
     for(int i = 0; i < nbBegin; i++){
         addNodeInTheWorker(dag,i,begin[i], 0.0);
-        //cout << "worker " << i << " work with node id " << begin[i] << endl;
 
     }
 
@@ -58,12 +56,10 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int 
 
     double timeExecute = 0;
     while(workersWork()) {
-        //cout << "-----------------------------------" << endl;
         int idSmallerTime = smallerWorkerTime();
         double timeToSub = workers[idSmallerTime].time;
         workers[idSmallerTime].work = false;
         timeExecute += workers[idSmallerTime].time;
-        //cout << "worker " << idSmallerTime << " finish node " << workers[idSmallerTime].idNode << endl;
 
         vector<int> nodeReady = dag.nodeHandle(workers[idSmallerTime].idNode);
         for (int i = 0; i < nodeReady.size(); i++) {
@@ -80,7 +76,6 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int 
                 default:
                     cout << "error mode " << mode << endl;
             }
-            //cout << "add node id " << nodeReady[i] << " in the queue" << endl;
         }
 
         for (int i = 0; i < nbWorker; i++) {
@@ -93,7 +88,6 @@ void WorkPool::playWorkPool(Dag dag, int* begin, int nbBegin, int nbWorker, int 
                             int idNode = workPool.front();
                             addNodeInTheWorker(dag, i, idNode, timeExecute);
                             workPool.pop();
-                            //cout << "worker " << i << " work with node id " << idNode << endl;
                         }
                         break;
                     case MODE_RANDOM ://random
